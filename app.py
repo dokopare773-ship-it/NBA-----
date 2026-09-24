@@ -147,18 +147,18 @@ if st.session_state.members[i]["name"]:
         }
         supabase.table("participants").delete().eq("slot_number", i + 1).execute()
         st.rerun()
-    if st.button("💾 保存", key=f"save_{i}"):
-            st.session_state.members[i] = {
-                "name": name.strip(),
-                "new": is_new,
-                "introducer": introducer.strip()
-            }
-            st.success("保存しました")
-            supabase.table("participants").upsert({
-                "slot_number": i + 1,
-                                "name": name.strip(),
-                                "is_new": is_new,
-                                "introducer": introducer.strip()
-            }, on_conflict="slot_number").execute()
-            st.rerun()
+if st.button("💾 保存", key=f"save_{i}"):
+        st.session_state.members[i] = {
+            "name": name.strip(),
+            "new": is_new,
+            "introducer": introducer.strip()
+        }
+        st.success("保存しました")
+        supabase.table("participants").upsert({
+            "slot_number": i + 1,
+                            "name": name.strip(),
+                            "is_new": is_new,
+                            "introducer": introducer.strip()
+        }, on_conflict="slot_number").execute()
+        st.rerun()
                 
