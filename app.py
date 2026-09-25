@@ -176,7 +176,8 @@ new_members = sum(1 for member in members if member["name"] and member["new"])
 
 st.divider()
 
-st.markdown(f"""
+st.markdown(
+    f"""
 <div style="margin: 10px 0 25px 0;">
     <div style="font-size: 22px; font-weight: 700; color: #000000;">
         👥 参加者
@@ -198,7 +199,9 @@ st.markdown(f"""
         （新規 {new_members}名）
     </div>
 </div>
-""", unsafe_allow_html=True)
+""",
+    unsafe_allow_html=True,
+)
 
 st.subheader("参加者名簿")
 
