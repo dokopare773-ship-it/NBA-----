@@ -183,9 +183,13 @@ st.markdown(
     f'</div>',
     unsafe_allow_html=True
 )
+empty_slot_shown = False
 for i, member in enumerate(members):
     number = i + 1
-
+    if not member["name"]:
+        if empty_slot_shown:
+            continue
+        empty_slot_shown = True
     if member["name"]:
             label = f"{number}. {member['name']}"
             if member["new"]:
