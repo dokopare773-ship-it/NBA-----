@@ -148,10 +148,35 @@ if poster_file is not None:
 
 try:
     saved_poster = poster_bucket.download(poster_path)
-    
+    st.image(saved_poster, use_container_width=True)
 except Exception:
     pass
+def extract_limit_from_poster(image_bytes):
+    import re
+    from io import BytesIO
+    from PIL import Image
+    import pytesseract
 
+    try:
+        image = Image.open(BytesIO(image_bytes)).convert("L")
+        image = image.resize((image.width * 2, image.height * 2))
+
+        text = pytesseract.image_to_string(image, lang="jpn")
+        normalized = text.replace(" ", "").replace("\n", "")
+
+        patterns = [
+            r"(\d+)名限定",
+            r"限定(\d+)名",
+        ]
+
+        for pattern in patterns:
+            match = re.search(pattern, normalized)
+            if match:
+                return int(match.group(1))
+    except Exception:
+        pass
+
+    return 30
 initial_members = [
     {"name": "比嘉海輝", "new": False, "introducer": ""},
     {"name": "吉田富和", "new": False, "introducer": ""},
@@ -194,44 +219,13 @@ while len(initial_members) < 30:
                         }
 members = st.session_state.members
 
+total_max_members = 30
+if "saved_poster" in locals():
+    max_members = extract_limit_from_poster(saved_poster)
+
 total_members = sum(1 for member in members if member["name"])
 new_members = sum(1 for member in members if member["name"] and member["new"])
-if "saved_poster" in locals():
-    import base64
-    import textwrap
 
-    poster_mime = "image/png" if saved_poster.startswith(b"\x89PNG") else "image/jpeg"
-    poster_b64 = base64.b64encode(saved_poster).decode()
-
-    poster_html = textwrap.dedent(f"""
-    <div style="position:relative; width:100%;">
-      <img src="data:{poster_mime};base64,{poster_b64}"
-           style="width:100%; display:block;">
-
-      <div style="
-        position:absolute;
-        top:12px;
-        right:12px;
-        background:#d60000;
-        color:white;
-        padding:10px 14px;
-        border-radius:14px;
-        font-weight:900;
-        text-align:center;
-        line-height:1.15;
-        box-shadow:0 2px 8px rgba(0,0,0,0.35);
-      ">
-        <div style="font-size:28px;">
-          限定 {total_members}名 / 30名
-        </div>
-        <div style="font-size:17px; margin-top:4px;">
-          上限30名　新規 {new_members}名
-        </div>
-      </div>
-    </div>
-    """)
-
-    st.markdown(poster_html, unsafe_allow_html=True)
 st.divider()
 
 st.markdown(
@@ -239,7 +233,7 @@ st.markdown(
     f'<div style="font-size:22px;font-weight:700;color:#000000;">参加者</div>'
     f'<div style="margin-top:4px;white-space:nowrap;">'
     f'<span style="font-size:38px;font-weight:900;color:#ff0000;">限定 {total_members}名</span>'
-    f'<span style="font-size:38px;font-weight:900;color:#000000;"> / 30名</span>'
+    f'<span style="font-size:38px;font-weight:900;color:#000000;"> / {max_members}名</span>'
     f'<span style="font-size:20px;font-weight:900;color:#000000;"> 上限</span>'
     f'</div>'
     f'<div style="font-size:28px;font-weight:900;color:#000000;margin-top:2px;">'
