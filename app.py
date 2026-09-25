@@ -34,9 +34,13 @@ st.markdown("""
         font-size: 1.25rem !important;
     }
     .stButton > button {
-        width: 100%;
-        min-height: 48px;
-    }
+    width: 100%;
+    min-height: 48px;
+    background-color: #111111 !important;
+    color: #ffffff !important;
+    border: 2px solid #000000 !important;
+    font-weight: 700 !important;
+}
     input {
         font-size: 16px !important;
     }
