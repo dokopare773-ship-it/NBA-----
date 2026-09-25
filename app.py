@@ -120,14 +120,7 @@ poster_file = st.file_uploader(
 )
 
 if poster_file is not None:
-    st.image(poster_file, caption="現在のセミナーポスター", use_container_width=True)
-st.title("✨ NBA 新しい資産の作り方")
-st.subheader("スペシャルゲスト　古賀 輔")
-
-st.write("📅 9月25日(金)")
-st.write("🕐 12:30受付 ／ 13:00開始（13:00〜15:30）")
-st.write("📍 ビジネスセンター KEEP FRONT")
-st.write("那覇市泊2丁目1−18 T&C泊ビル 4F 会議室")
+    st.image(poster_file, use_container_width=True)
 
 initial_members = [
     {"name": "比嘉海輝", "new": False, "introducer": ""},
@@ -177,85 +170,70 @@ new_members = sum(1 for member in members if member["name"] and member["new"])
 st.divider()
 
 st.markdown(
-    f"""
-<div style="margin: 10px 0 25px 0;">
-    <div style="font-size: 22px; font-weight: 700; color: #000000;">
-        👥 参加者
-    </div>
-
-    <div style="margin-top: 4px; white-space: nowrap;">
-        <span style="font-size: 38px; font-weight: 900; color: #ff0000;">
-            限定 {total_members}名
-        </span>
-        <span style="font-size: 38px; font-weight: 900; color: #000000;">
-            / 30名
-        </span>
-        <span style="font-size: 20px; font-weight: 900; color: #000000;">
-            上限
-        </span>
-    </div>
-
-    <div style="font-size: 28px; font-weight: 900; color: #000000; margin-top: 2px;">
-        （新規 {new_members}名）
-    </div>
-</div>
-""",
-    unsafe_allow_html=True,
+    f'<div style="margin:10px 25px 0;">'
+    f'<div style="font-size:22px;font-weight:700;color:#000000;">参加者</div>'
+    f'<div style="margin-top:4px;white-space:nowrap;">'
+    f'<span style="font-size:38px;font-weight:900;color:#ff0000;">限定 {total_members}名</span>'
+    f'<span style="font-size:38px;font-weight:900;color:#000000;"> / 30名</span>'
+    f'<span style="font-size:20px;font-weight:900;color:#000000;"> 上限</span>'
+    f'</div>'
+    f'<div style="font-size:28px;font-weight:900;color:#000000;margin-top:2px;">'
+    f'（新規 {new_members}名）'
+    f'</div>'
+    f'</div>',
+    unsafe_allow_html=True
 )
-
-st.subheader("参加者名簿")
-
 for i, member in enumerate(members):
     number = i + 1
 
     if member["name"]:
-        label = f"{number}. {member['name']}"
-        if member["new"]:
-            label += " 🟡"
-        if member["introducer"]:
-            label += f"（{member['introducer']}）"
+            label = f"{number}. {member['name']}"
+            if member["new"]:
+                label += " 🟡"
+            if member["introducer"]:
+                label += f"（{member['introducer']}）"
     else:
-        label = f"{number}. ＋ 参加者を登録"
+            label = f"{number}. ＋ 参加者を登録"
 
     with st.expander(label):
-        name = st.text_input(
-            "参加者名",
-            value=member["name"],
-            key=f"name_{i}"
-        )
+            name = st.text_input(
+                "参加者名",
+                value=member["name"],
+                key=f"name_{i}"
+            )
 
-        is_new = st.checkbox(
-            "🟡 新規参加者",
-            value=member["new"],
-            key=f"new_{i}"
-        )
+            is_new = st.checkbox(
+                "🟡 新規参加者",
+                value=member["new"],
+                key=f"new_{i}"
+            )
 
-        introducer = st.text_input(
-            "紹介者名",
-            value=member["introducer"],
-            key=f"introducer_{i}"
-        )
-        if st.session_state.members[i]["name"]:
-            if st.button("🗑️ この参加者を削除", key=f"delete_{i}"):
-                st.session_state.members[i] = {
-                    "name": "",
-                    "new": False,
-                    "introducer": ""
-                }
-                supabase.table("participants").delete().eq("slot_number", i + 1).execute()
-                st.rerun()
-        if st.button("💾 保存", key=f"save_{i}"):
-                st.session_state.members[i] = {
-                    "name": name.strip(),
-                    "new": is_new,
-                    "introducer": introducer.strip()
-                }
-                st.success("保存しました")
-                supabase.table("participants").upsert({
-                    "slot_number": i + 1,
-                                    "name": name.strip(),
-                                    "is_new": is_new,
-                                    "introducer": introducer.strip()
-                }, on_conflict="slot_number").execute()
-                st.rerun()
+            introducer = st.text_input(
+                "紹介者名",
+                value=member["introducer"],
+                key=f"introducer_{i}"
+            )
+            if st.session_state.members[i]["name"]:
+                if st.button("🗑️ この参加者を削除", key=f"delete_{i}"):
+                    st.session_state.members[i] = {
+                        "name": "",
+                        "new": False,
+                        "introducer": ""
+                    }
+                    supabase.table("participants").delete().eq("slot_number", i + 1).execute()
+                    st.rerun()
+            if st.button("💾 保存", key=f"save_{i}"):
+                    st.session_state.members[i] = {
+                        "name": name.strip(),
+                        "new": is_new,
+                        "introducer": introducer.strip()
+                    }
+                    st.success("保存しました")
+                    supabase.table("participants").upsert({
+                        "slot_number": i + 1,
+                                        "name": name.strip(),
+                                        "is_new": is_new,
+                                        "introducer": introducer.strip()
+                    }, on_conflict="slot_number").execute()
+                    st.rerun()
                     
