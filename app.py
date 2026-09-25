@@ -58,6 +58,10 @@ st.markdown("""
     color: #000000 !important;
     font-weight: 600 !important;
 }
+.stExpander details {
+    background-color: #ffffff !important;
+    color: #000000 !important;
+}
 </style>
 """, unsafe_allow_html=True)
 st.title("✨ NBA 新しい資産の作り方")
