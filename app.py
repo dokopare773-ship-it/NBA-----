@@ -125,13 +125,11 @@ poster_path = "current_poster"
 limit_path = "current_limit.txt"
 if poster_file is not None:
     poster_bytes = poster_file.getvalue()
-    import hashlib
+    
 
-    poster_hash = hashlib.md5(poster_bytes).hexdigest()
 
-    if st.session_state.get("last_poster_hash") != poster_hash:
-        st.session_state["max_members"] = extract_limit_from_poster(poster_bytes)
-        st.session_state["last_poster_hash"] = poster_hash
+
+    
     existing_files = poster_bucket.list()
     poster_exists = any(
         item["name"] == poster_path
