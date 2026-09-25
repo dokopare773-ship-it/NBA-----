@@ -49,24 +49,14 @@ st.markdown("""
     background-color: #FFD800 !important;
     color: #000000 !important;
 }
-.stCheckbox input[type="checkbox"] {
-    appearance: none !important;
-    -webkit-appearance: none !important;
-    width: 20px !important;
-    height: 20px !important;
+.stCheckbox [data-baseweb="checkbox"] > div:first-child {
     background-color: #ffffff !important;
     border: 2px solid #000000 !important;
-    border-radius: 3px !important;
 }
 
-.stCheckbox input[type="checkbox"]:checked::after {
-    content: "✓";
+.stCheckbox [data-baseweb="checkbox"] svg {
     color: #000000 !important;
-    font-size: 16px !important;
-    font-weight: bold !important;
-    position: relative;
-    left: 2px;
-    top: -3px;
+    fill: #000000 !important;
 }
 .stApp h1,
 .stApp h2,
