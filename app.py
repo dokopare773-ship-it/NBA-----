@@ -112,63 +112,7 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 # ===== セミナーポスター設定 =====
-def extract_limit_from_poster(image_bytes):
-    import re
-    from io import BytesIO
-    from PIL import Image, ImageOps, ImageEnhance
-    import pytesseract
 
-    try:
-        image = Image.open(BytesIO(image_bytes)).convert("RGB")
-
-        image = image.resize(
-            (image.width * 2, image.height * 2)
-        )
-
-        image = ImageOps.grayscale(image)
-        image = ImageEnhance.Contrast(image).enhance(2.0)
-
-        text = pytesseract.image_to_string(
-            image,
-            lang="jpn+eng",
-            config="--psm 11"
-        )
-
-        normalized = (
-            text.replace(" ", "")
-                .replace("　", "")
-                .replace("\n", "")
-                .replace("１", "1")
-                .replace("２", "2")
-                .replace("３", "3")
-                .replace("４", "4")
-                .replace("５", "5")
-                .replace("６", "6")
-                .replace("７", "7")
-                .replace("８", "8")
-                .replace("９", "9")
-                .replace("０", "0")
-        )
-
-        patterns = [
-            r"(\d{1,3})名限定",
-            r"限定(\d{1,3})名",
-            r"(\d{1,3})名.{0,4}限定",
-            r"限定.{0,4}(\d{1,3})名",
-        ]
-
-        for pattern in patterns:
-            match = re.search(pattern, normalized)
-            if match:
-                value = int(match.group(1))
-
-                if 1 <= value <= 100:
-                    return value
-
-    except Exception:
-        pass
-
-    return 30
 st.subheader("🖼️ セミナーポスター")
 
 poster_file = st.file_uploader(
@@ -279,7 +223,35 @@ try:
     saved_limit = poster_bucket.download(limit_path)
     max_members = int(saved_limit.decode("utf-8").strip())
 except Exception:
-    max_members = st.session_state.get("max_members", 30)
+    pass
+
+manual_limit = st.number_input(
+    "上限人数",
+    min_value=1,
+    max_value=999,
+    value=max_members,
+    step=1,
+    key="manual_limit"
+)
+
+if st.button("💾 上限人数を保存", key="save_limit"):
+    limit_bytes = str(int(manual_limit)).encode("utf-8")
+
+    try:
+        poster_bucket.update(
+            limit_path,
+            limit_bytes,
+            {"content-type": "text/plain"}
+        )
+    except Exception:
+        poster_bucket.upload(
+            limit_path,
+            limit_bytes,
+            {"content-type": "text/plain"}
+        )
+
+    st.success("上限人数を保存しました")
+    st.rerun()
 total_members = sum(1 for member in members if member["name"])
 new_members = sum(1 for member in members if member["name"] and member["new"])
 
