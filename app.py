@@ -214,13 +214,34 @@ for i, member in enumerate(members):
                 key=f"introducer_{i}"
             )
             if st.session_state.members[i]["name"]:
-                if st.button("🗑️ この参加者を削除", key=f"delete_{i}"):
-                    st.session_state.members[i] = {
+                if st.button("🗑 この参加者を削除", key=f"delete_{i}"):
+
+                    # 削除した参加者をリストから取り除き、後ろを自動で前へ詰める
+                    st.session_state.members.pop(i)
+
+                    # 一番最後に新規登録用の空欄を1つ追加
+                    st.session_state.members.append({
                         "name": "",
                         "new": False,
                         "introducer": ""
-                    }
-                    supabase.table("participants").delete().eq("slot_number", i + 1).execute()
+                    })
+
+                    # 削除位置以降の番号をSupabase側でも振り直す
+                    for j in range(i, len(st.session_state.members)):
+                        member_data = st.session_state.members[j]
+
+                        if member_data["name"]:
+                            supabase.table("participants").upsert({
+                                "slot_number": j + 1,
+                                "name": member_data["name"],
+                                "is_new": member_data["new"],
+                                "introducer": member_data["introducer"]
+                            }, on_conflict="slot_number").execute()
+                        else:
+                            supabase.table("participants").delete().eq(
+                                "slot_number", j + 1
+                            ).execute()
+
                     st.rerun()
             if st.button("💾 保存", key=f"save_{i}"):
                     st.session_state.members[i] = {
