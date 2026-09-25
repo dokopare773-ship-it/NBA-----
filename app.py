@@ -233,26 +233,30 @@ for i, member in enumerate(members):
             name = st.text_input(
                 "参加者名",
                 value=member["name"],
-                key=f"name_{i}"
+                key=f"name_{i}_{st.session_state.get('form_version', 0)}"
             )
 
             is_new = st.checkbox(
                 "🟡 新規参加者",
                 value=member["new"],
-                key=f"new_{i}"
+                key=f"new_{i}_{st.session_state.get('form_version', 0)}"
             )
 
             introducer = st.text_input(
                 "紹介者名",
                 value=member["introducer"],
-                key=f"introducer_{i}"
+                key=f"introducer_{i}_{st.session_state.get('form_version', 0)}"
             )
             if st.session_state.members[i]["name"]:
                 if st.button("🗑 この参加者を削除", key=f"delete_{i}"):
 
                     # 削除した参加者をリストから取り除き、後ろを自動で前へ詰める
                     st.session_state.members.pop(i)
-
+                    st.session_state.form_version = st.session_state.get("form_version", 0) + 1
+                    for j in range(i, len(st.session_state.members) + 1):
+                        st.session_state.pop(f"name_{j}", None)
+                        st.session_state.pop(f"new_{j}", None)
+                        st.session_state.pop(f"introducer_{j}", None)
                     # 一番最後に新規登録用の空欄を1つ追加
                     st.session_state.members.append({
                         "name": "",
