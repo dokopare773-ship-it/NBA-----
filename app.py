@@ -49,9 +49,9 @@ st.markdown("""
     background-color: #FFD800 !important;
     color: #000000 !important;
 }
-.stCheckbox [data-baseweb="checkbox"] > div:first-child {
+.stCheckbox [data-baseweb="checkbox"] span {
     background-color: #ffffff !important;
-    border: 2px solid #000000 !important;
+    border-color: #000000 !important;
 }
 
 .stCheckbox [data-baseweb="checkbox"] svg {
