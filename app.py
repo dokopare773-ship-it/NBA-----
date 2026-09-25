@@ -112,45 +112,6 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 # ===== セミナーポスター設定 =====
-st.subheader("🖼️ セミナーポスター")
-
-poster_file = st.file_uploader(
-    "新しいセミナーのポスターをアップロード",
-    type=["png", "jpg", "jpeg"]
-)
-
-poster_bucket = supabase.storage.from_("seminar-posters")
-poster_path = "current_poster"
-
-if poster_file is not None:
-    poster_bytes = poster_file.getvalue()
-
-    existing_files = poster_bucket.list()
-    poster_exists = any(
-        item["name"] == poster_path
-        for item in existing_files
-    )
-
-    if poster_exists:
-        poster_bucket.update(
-            poster_path,
-            poster_bytes,
-            {"content-type": poster_file.type}
-        )
-    else:
-        poster_bucket.upload(
-            poster_path,
-            poster_bytes,
-            {"content-type": poster_file.type}
-        )
-
-    st.success("ポスターを保存しました")
-
-try:
-    saved_poster = poster_bucket.download(poster_path)
-    st.image(saved_poster, use_container_width=True)
-except Exception:
-    pass
 def extract_limit_from_poster(image_bytes):
     import re
     from io import BytesIO
@@ -208,6 +169,68 @@ def extract_limit_from_poster(image_bytes):
         pass
 
     return 30
+st.subheader("🖼️ セミナーポスター")
+
+poster_file = st.file_uploader(
+    "新しいセミナーのポスターをアップロード",
+    type=["png", "jpg", "jpeg"]
+)
+
+poster_bucket = supabase.storage.from_("seminar-posters")
+poster_path = "current_poster"
+limit_path = "current_limit.txt"
+if poster_file is not None:
+    poster_bytes = poster_file.getvalue()
+    import hashlib
+
+    poster_hash = hashlib.md5(poster_bytes).hexdigest()
+
+    if st.session_state.get("last_poster_hash") != poster_hash:
+        st.session_state["max_members"] = extract_limit_from_poster(poster_bytes)
+        st.session_state["last_poster_hash"] = poster_hash
+    existing_files = poster_bucket.list()
+    poster_exists = any(
+        item["name"] == poster_path
+        for item in existing_files
+    )
+    limit_exists = any(
+        item["name"] == limit_path
+        for item in existing_files
+    )
+    if poster_exists:
+        poster_bucket.update(
+            poster_path,
+            poster_bytes,
+            {"content-type": poster_file.type}
+        )
+    else:
+        poster_bucket.upload(
+            poster_path,
+            poster_bytes,
+            {"content-type": poster_file.type}
+        )
+    limit_bytes = str(st.session_state.get("max_members", 30)).encode("utf-8")
+
+    if limit_exists:
+        poster_bucket.update(
+            limit_path,
+            limit_bytes,
+            {"content-type": "text/plain"}
+        )
+    else:
+        poster_bucket.upload(
+            limit_path,
+            limit_bytes,
+            {"content-type": "text/plain"}
+        )
+    st.success("ポスターを保存しました")
+
+try:
+    saved_poster = poster_bucket.download(poster_path)
+    st.image(saved_poster, use_container_width=True)
+except Exception:
+    pass
+
 initial_members = [
     {"name": "比嘉海輝", "new": False, "introducer": ""},
     {"name": "吉田富和", "new": False, "introducer": ""},
@@ -250,27 +273,13 @@ while len(initial_members) < 30:
                         }
 members = st.session_state.members
 
-total_max_members = 30
-if "saved_poster" in locals():
-    max_members = extract_limit_from_poster(saved_poster)
-    from io import BytesIO
-from PIL import Image, ImageOps, ImageEnhance
-import pytesseract
+max_members = 30
 
-debug_image = Image.open(BytesIO(saved_poster)).convert("RGB")
-debug_image = debug_image.resize(
-    (debug_image.width * 3, debug_image.height * 3)
-)
-debug_image = ImageOps.grayscale(debug_image)
-debug_image = ImageEnhance.Contrast(debug_image).enhance(2.5)
-
-debug_text = pytesseract.image_to_string(
-    debug_image,
-    lang="jpn+eng",
-    config="--psm 11"
-)
-
-st.info(f"OCR読取結果：\n{debug_text}")
+try:
+    saved_limit = poster_bucket.download(limit_path)
+    max_members = int(saved_limit.decode("utf-8").strip())
+except Exception:
+    max_members = st.session_state.get("max_members", 30)
 total_members = sum(1 for member in members if member["name"])
 new_members = sum(1 for member in members if member["name"] and member["new"])
 
