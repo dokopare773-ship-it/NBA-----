@@ -58,6 +58,7 @@ st.markdown("""
 }
 
 .stExpander summary,
+.stExpander summary *,
 .stExpander label {
     color: #000000 !important;
     font-weight: 600 !important;
