@@ -176,13 +176,29 @@ new_members = sum(1 for member in members if member["name"] and member["new"])
 
 st.divider()
 
-col1, col2 = st.columns(2)
+st.markdown(f"""
+<div style="margin: 10px 0 25px 0;">
+    <div style="font-size: 22px; font-weight: 700; color: #000000;">
+        👥 参加者
+    </div>
 
-with col1:
-    st.metric("👥 参加者", f"{total_members}名 / 30名")
+    <div style="margin-top: 4px; white-space: nowrap;">
+        <span style="font-size: 38px; font-weight: 900; color: #ff0000;">
+            限定 {total_members}名
+        </span>
+        <span style="font-size: 38px; font-weight: 900; color: #000000;">
+            / 30名
+        </span>
+        <span style="font-size: 20px; font-weight: 900; color: #000000;">
+            上限
+        </span>
+    </div>
 
-with col2:
-    st.metric("🟡 新規", f"{new_members}名")
+    <div style="font-size: 28px; font-weight: 900; color: #000000; margin-top: 2px;">
+        （新規 {new_members}名）
+    </div>
+</div>
+""", unsafe_allow_html=True)
 
 st.subheader("参加者名簿")
 
