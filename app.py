@@ -154,85 +154,59 @@ except Exception:
 def extract_limit_from_poster(image_bytes):
     import re
     from io import BytesIO
-    from PIL import Image, ImageOps, ImageEnhance, ImageFilter
+    from PIL import Image, ImageOps, ImageEnhance
     import pytesseract
 
     try:
-        original = Image.open(BytesIO(image_bytes)).convert("RGB")
-        w, h = original.size
+        image = Image.open(BytesIO(image_bytes)).convert("RGB")
 
-        # ポスター全体＋複数エリアを読む
-        regions = [
-            original,                              # 全体
-            original.crop((0, 0, w, h // 2)),     # 上半分
-            original.crop((0, h // 2, w, h)),     # 下半分
-            original.crop((0, 0, w // 2, h)),     # 左半分
-            original.crop((w // 2, 0, w, h)),     # 右半分
-            original.crop((w // 4, 0, 3*w // 4, h)),  # 中央縦
-            original.crop((0, h // 4, w, 3*h // 4)),  # 中央横
-        ]
+        image = image.resize(
+            (image.width * 2, image.height * 2)
+        )
+
+        image = ImageOps.grayscale(image)
+        image = ImageEnhance.Contrast(image).enhance(2.0)
+
+        text = pytesseract.image_to_string(
+            image,
+            lang="jpn+eng",
+            config="--psm 11"
+        )
+
+        normalized = (
+            text.replace(" ", "")
+                .replace("　", "")
+                .replace("\n", "")
+                .replace("１", "1")
+                .replace("２", "2")
+                .replace("３", "3")
+                .replace("４", "4")
+                .replace("５", "5")
+                .replace("６", "6")
+                .replace("７", "7")
+                .replace("８", "8")
+                .replace("９", "9")
+                .replace("０", "0")
+        )
 
         patterns = [
             r"(\d{1,3})名限定",
             r"限定(\d{1,3})名",
-            r"(\d{1,3})名.{0,3}限定",
-            r"限定.{0,3}(\d{1,3})名",
+            r"(\d{1,3})名.{0,4}限定",
+            r"限定.{0,4}(\d{1,3})名",
         ]
 
-        for region in regions:
-            # 3倍に拡大
-            enlarged = region.resize(
-                (region.width * 3, region.height * 3)
-            )
+        for pattern in patterns:
+            match = re.search(pattern, normalized)
+            if match:
+                value = int(match.group(1))
 
-            # 白黒化＋コントラスト強化
-            gray = ImageOps.grayscale(enlarged)
-            gray = ImageEnhance.Contrast(gray).enhance(2.5)
-            gray = gray.filter(ImageFilter.SHARPEN)
-
-            # 通常版と二値化版の両方を読む
-            versions = [
-                gray,
-                gray.point(lambda x: 0 if x < 160 else 255, "1"),
-            ]
-
-            for img in versions:
-                for psm in [6, 11, 12]:
-                    text = pytesseract.image_to_string(
-                        img,
-                        lang="jpn+eng",
-                        config=f"--psm {psm}"
-                    )
-
-                    normalized = (
-                        text.replace(" ", "")
-                            .replace("　", "")
-                            .replace("\n", "")
-                            .replace("１", "1")
-                            .replace("２", "2")
-                            .replace("３", "3")
-                            .replace("４", "4")
-                            .replace("５", "5")
-                            .replace("６", "6")
-                            .replace("７", "7")
-                            .replace("８", "8")
-                            .replace("９", "9")
-                            .replace("０", "0")
-                    )
-
-                    for pattern in patterns:
-                        match = re.search(pattern, normalized)
-                        if match:
-                            value = int(match.group(1))
-
-                            # 現実的な参加上限だけ採用
-                            if 1 <= value <= 100:
-                                return value
+                if 1 <= value <= 100:
+                    return value
 
     except Exception:
         pass
 
-    # 読み取れなかった時だけ従来の30名
     return 30
 initial_members = [
     {"name": "比嘉海輝", "new": False, "introducer": ""},
