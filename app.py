@@ -49,14 +49,9 @@ st.markdown("""
     background-color: #FFD800 !important;
     color: #000000 !important;
 }
-.stCheckbox [data-baseweb="checkbox"] span {
+.stCheckbox div.st-emotion-cache-bqwma9 {
     background-color: #ffffff !important;
-    border-color: #000000 !important;
-}
-
-.stCheckbox [data-baseweb="checkbox"] svg {
-    color: #000000 !important;
-    fill: #000000 !important;
+    border: 2px solid #000000 !important;
 }
 .stApp h1,
 .stApp h2,
