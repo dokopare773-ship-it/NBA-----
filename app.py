@@ -200,7 +200,7 @@ while len(initial_members) < 30:
         {"name": "", "new": False, "introducer": ""}
     )
     if "members" not in st.session_state:
-        st.session_state.members = initial_members.copy()
+        st.session_state.members = [{"name": "", "new": False, "introducer": ""} for _ in range(30)]
         rows = supabase.table("participants").select("*").order("slot_number").execute().data
         if rows:
             for row in rows:
