@@ -198,40 +198,40 @@ total_members = sum(1 for member in members if member["name"])
 new_members = sum(1 for member in members if member["name"] and member["new"])
 if "saved_poster" in locals():
     import base64
+    import textwrap
 
     poster_mime = "image/png" if saved_poster.startswith(b"\x89PNG") else "image/jpeg"
     poster_b64 = base64.b64encode(saved_poster).decode()
 
-    st.markdown(
-        f"""
-        <div style="position:relative; width:100%;">
-            <img src="data:{poster_mime};base64,{poster_b64}"
-                 style="width:100%; display:block;">
+    poster_html = textwrap.dedent(f"""
+    <div style="position:relative; width:100%;">
+      <img src="data:{poster_mime};base64,{poster_b64}"
+           style="width:100%; display:block;">
 
-            <div style="
-                position:absolute;
-                top:12px;
-                right:12px;
-                background:#d60000;
-                color:white;
-                padding:10px 14px;
-                border-radius:14px;
-                font-weight:900;
-                text-align:center;
-                line-height:1.15;
-                box-shadow:0 2px 8px rgba(0,0,0,0.35);
-            ">
-                <div style="font-size:28px;">
-                    限定 {total_members}名 / 30名
-                </div>
-                <div style="font-size:17px; margin-top:4px;">
-                    上限30名　新規 {new_members}名
-                </div>
-            </div>
+      <div style="
+        position:absolute;
+        top:12px;
+        right:12px;
+        background:#d60000;
+        color:white;
+        padding:10px 14px;
+        border-radius:14px;
+        font-weight:900;
+        text-align:center;
+        line-height:1.15;
+        box-shadow:0 2px 8px rgba(0,0,0,0.35);
+      ">
+        <div style="font-size:28px;">
+          限定 {total_members}名 / 30名
         </div>
-        """,
-        unsafe_allow_html=True
-    )
+        <div style="font-size:17px; margin-top:4px;">
+          上限30名　新規 {new_members}名
+        </div>
+      </div>
+    </div>
+    """)
+
+    st.markdown(poster_html, unsafe_allow_html=True)
 st.divider()
 
 st.markdown(
