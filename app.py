@@ -41,6 +41,23 @@ st.markdown("""
         font-size: 16px !important;
     }
 }
+.stApp {
+    background-color: #FFD84D;
+}
+.stTextInput input {
+    background-color: white !important;
+    color: black !important;
+    border: 2px solid #000000 !important;
+}
+.stExpander {
+    border: 2px solid #000000 !important;
+}
+
+.stExpander summary,
+.stExpander label {
+    color: #000000 !important;
+    font-weight: 600 !important;
+}
 </style>
 """, unsafe_allow_html=True)
 st.title("✨ NBA 新しい資産の作り方")
@@ -138,27 +155,27 @@ for i, member in enumerate(members):
             value=member["introducer"],
             key=f"introducer_{i}"
         )
-if st.session_state.members[i]["name"]:
-    if st.button("🗑️ この参加者を削除", key=f"delete_{i}"):
-        st.session_state.members[i] = {
-            "name": "",
-            "new": False,
-            "introducer": ""
-        }
-        supabase.table("participants").delete().eq("slot_number", i + 1).execute()
-        st.rerun()
-if st.button("💾 保存", key=f"save_{i}"):
-        st.session_state.members[i] = {
-            "name": name.strip(),
-            "new": is_new,
-            "introducer": introducer.strip()
-        }
-        st.success("保存しました")
-        supabase.table("participants").upsert({
-            "slot_number": i + 1,
-                            "name": name.strip(),
-                            "is_new": is_new,
-                            "introducer": introducer.strip()
-        }, on_conflict="slot_number").execute()
-        st.rerun()
-                
+        if st.session_state.members[i]["name"]:
+            if st.button("🗑️ この参加者を削除", key=f"delete_{i}"):
+                st.session_state.members[i] = {
+                    "name": "",
+                    "new": False,
+                    "introducer": ""
+                }
+                supabase.table("participants").delete().eq("slot_number", i + 1).execute()
+                st.rerun()
+        if st.button("💾 保存", key=f"save_{i}"):
+                st.session_state.members[i] = {
+                    "name": name.strip(),
+                    "new": is_new,
+                    "introducer": introducer.strip()
+                }
+                st.success("保存しました")
+                supabase.table("participants").upsert({
+                    "slot_number": i + 1,
+                                    "name": name.strip(),
+                                    "is_new": is_new,
+                                    "introducer": introducer.strip()
+                }, on_conflict="slot_number").execute()
+                st.rerun()
+                    
