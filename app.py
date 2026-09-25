@@ -119,8 +119,38 @@ poster_file = st.file_uploader(
     type=["png", "jpg", "jpeg"]
 )
 
+poster_bucket = supabase.storage.from_("seminar-posters")
+poster_path = "current_poster"
+
 if poster_file is not None:
-    st.image(poster_file, use_container_width=True)
+    poster_bytes = poster_file.getvalue()
+
+    existing_files = poster_bucket.list()
+    poster_exists = any(
+        item["name"] == poster_path
+        for item in existing_files
+    )
+
+    if poster_exists:
+        poster_bucket.update(
+            poster_path,
+            poster_bytes,
+            {"content-type": poster_file.type}
+        )
+    else:
+        poster_bucket.upload(
+            poster_path,
+            poster_bytes,
+            {"content-type": poster_file.type}
+        )
+
+    st.success("ポスターを保存しました")
+
+try:
+    saved_poster = poster_bucket.download(poster_path)
+    st.image(saved_poster, use_container_width=True)
+except Exception:
+    pass
 
 initial_members = [
     {"name": "比嘉海輝", "new": False, "introducer": ""},
