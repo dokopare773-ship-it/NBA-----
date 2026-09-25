@@ -46,26 +46,65 @@ st.markdown("""
     }
 }
 .stApp {
-    background-color: #FFD84D;
+    background-color: #FFD800 !important;
+    color: #000000 !important;
 }
+
+.stApp h1,
+.stApp h2,
+.stApp h3,
+.stApp p,
+.stApp label,
+.stApp div {
+    color: #000000;
+}
+
+/* 参加者の入力欄 */
 .stTextInput input {
-    background-color: white !important;
-    color: black !important;
+    background-color: #FFFFFF !important;
+    color: #000000 !important;
     border: 2px solid #000000 !important;
+    -webkit-text-fill-color: #000000 !important;
 }
-.stExpander {
+
+/* 参加者カード */
+[data-testid="stExpander"] {
+    background-color: #FFFFFF !important;
     border: 2px solid #000000 !important;
 }
 
-.stExpander summary,
-.stExpander summary *,
-.stExpander label {
+/* 参加者カードの見出し */
+[data-testid="stExpander"] summary,
+[data-testid="stExpander"] summary *,
+[data-testid="stExpander"] summary p {
+    background-color: #FFFFFF !important;
     color: #000000 !important;
+    -webkit-text-fill-color: #000000 !important;
     font-weight: 600 !important;
 }
-.stExpander details {
-    background-color: #ffffff !important;
+
+/* 開いた参加者カードの中 */
+[data-testid="stExpanderDetails"] {
+    background-color: #FFFFFF !important;
     color: #000000 !important;
+}
+
+/* ボタン */
+.stButton > button {
+    width: auto !important;
+    min-width: 0 !important;
+    min-height: 48px !important;
+    background-color: #111111 !important;
+    color: #FFFFFF !important;
+    border: 2px solid #000000 !important;
+}
+
+/* ボタン内の文字も白 */
+.stButton > button *,
+.stButton > button p,
+.stButton > button div {
+    color: #FFFFFF !important;
+    -webkit-text-fill-color: #FFFFFF !important;
 }
 </style>
 """, unsafe_allow_html=True)
