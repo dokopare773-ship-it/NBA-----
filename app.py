@@ -111,6 +111,16 @@ st.markdown("""
 }
 </style>
 """, unsafe_allow_html=True)
+# ===== セミナーポスター設定 =====
+st.subheader("🖼️ セミナーポスター")
+
+poster_file = st.file_uploader(
+    "新しいセミナーのポスターをアップロード",
+    type=["png", "jpg", "jpeg"]
+)
+
+if poster_file is not None:
+    st.image(poster_file, caption="現在のセミナーポスター", use_container_width=True)
 st.title("✨ NBA 新しい資産の作り方")
 st.subheader("スペシャルゲスト　古賀 輔")
 
